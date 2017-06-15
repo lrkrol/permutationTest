@@ -35,6 +35,8 @@
 %                       Team PhyPA, Biological Psychology and Neuroergonomics,
 %                       Berlin Institute of Technology
 
+% 2017-06-15 lrk
+%   - Updated waitbar message in first iteration
 % 2017-04-04 lrk
 %   - Added progress bar
 % 2017-01-13 lrk
@@ -88,7 +90,7 @@ if iscolumn(sample2), sample2 = sample2'; end
 % running test
 allobservations = [sample1, sample2];
 randomdifferences = zeros(1, permutations);
-if showprogress, w = waitbar(0, '', 'Name', 'permutationTest'); end
+if showprogress, w = waitbar(0, sprintf('Permutation 0 of %d', permutations), 'Name', 'permutationTest'); end
 for n = 1:permutations
     if showprogress, if mod(n,showprogress) == 0, waitbar(n/permutations, w, sprintf('Permutation %d of %d', n, permutations)); end; end
     
