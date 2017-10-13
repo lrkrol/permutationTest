@@ -120,7 +120,7 @@ if plotresult
     hold on;
     xlabel('Random differences');
     ylabel('Count')
-    od = plot(observeddifference, 0, '*r', 'DisplayName', sprintf('Observed difference:\neffect size: %.2f,\np = %f', effectsize, p));
+    od = plot(observeddifference, 0, '*r', 'DisplayName', sprintf('Observed difference.\nEffect size: %.2f,\np = %f', effectsize, p));
     legend(od);
 end
 
