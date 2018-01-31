@@ -35,6 +35,8 @@
 %                       Team PhyPA, Biological Psychology and Neuroergonomics,
 %                       Berlin Institute of Technology
 
+% 2018-01-31 lrk
+%   - Replaced calls to mean() with nanmean()
 % 2017-06-15 lrk
 %   - Updated waitbar message in first iteration
 % 2017-04-04 lrk
@@ -84,6 +86,7 @@ sidedness = p.Results.sidedness;
 plotresult = p.Results.plotresult;
 showprogress = p.Results.showprogress;
 
+% enforcing row vectors
 if iscolumn(sample1), sample1 = sample1'; end
 if iscolumn(sample2), sample2 = sample2'; end
 
@@ -98,12 +101,12 @@ for n = 1:permutations
     randomSample1 = allobservations(permutation(1:length(sample1)));
     randomSample2 = allobservations(permutation(length(sample1)+1:length(permutation)));
     
-    randomdifferences(n) = mean(randomSample1) - mean(randomSample2);
+    randomdifferences(n) = nanmean(randomSample1) - nanmean(randomSample2);
 end
 if showprogress, delete(w); end
 
-observeddifference = mean(sample1) - mean(sample2);
-effectsize = observeddifference / mean([std(sample1), std(sample2)]);
+observeddifference = nanmean(sample1) - nanmean(sample2);
+effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
 
 if strcmp(sidedness, 'both')
     p = (length(find(abs(randomdifferences) > abs(observeddifference)))+1) / (permutations+1);
