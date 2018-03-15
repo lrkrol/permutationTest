@@ -10,3 +10,5 @@ permutationTest(sample1, sample2, 10000, 'plot', 1);
 ```
 
 ![Output plot](./permutationTest.png)
+
+It is also possible to perform exact tests, during which all possible combinations are considered.
