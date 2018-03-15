@@ -39,6 +39,8 @@
 %                    Team PhyPA, Biological Psychology and Neuroergonomics,
 %                    Berlin Institute of Technology
 
+% 2018-03-15 lrk
+%   - Suppressed initial MATLAB:nchoosek:LargeCoefficient warning
 % 2018-03-14 lrk
 %   - Added exact test
 % 2018-01-31 lrk
@@ -102,11 +104,13 @@ allobservations = [sample1, sample2];
 observeddifference = nanmean(sample1) - nanmean(sample2);
 effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
 
+w = warning('off', 'MATLAB:nchoosek:LargeCoefficient');
 if ~exact && permutations > nchoosek(numel(allobservations), numel(sample1))
     warning(['the number of permutations (%d) is higher than the number of possible combinations (%d);\n' ...
              'consider running an exact test using the ''exact'' argument'], ...
-             permutations, nchoosek(numel(sample1) + numel(sample2), numel(sample1)));
+             permutations, nchoosek(numel(allobservations), numel(sample1)));
 end
+warning(w);
 
 if showprogress, w = waitbar(0, 'Preparing test...', 'Name', 'permutationTest'); end
 
