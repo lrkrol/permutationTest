@@ -14,6 +14,10 @@
 %           'larger' - test one-sided, alternative hypothesis is that
 %                      the mean of sample1 is larger than the mean of
 %                      sample2
+%       exact - whether or not to run an exact test, in which all possible
+%               combinations are considered. this is only feasible for
+%               relatively small sample sizes. the 'permutations' argument
+%               will be ignored for an exact test. (1|0, default 0)
 %       plotresult - whether or not to plot the distribution of randomised
 %                    differences, along with the observed difference (1|0,
 %                    default: 0)
@@ -31,10 +35,12 @@
 %       >> permutationTest(rand(1,100), rand(1,100)-.25, 10000, ...
 %          'plotresult', 1, 'showprogress', 250)
 % 
-%                       Copyright 2015-2017 Laurens R Krol
-%                       Team PhyPA, Biological Psychology and Neuroergonomics,
-%                       Berlin Institute of Technology
+%                    Copyright 2015-2018 Laurens R Krol
+%                    Team PhyPA, Biological Psychology and Neuroergonomics,
+%                    Berlin Institute of Technology
 
+% 2018-03-14 lrk
+%   - Added exact test
 % 2018-01-31 lrk
 %   - Replaced calls to mean() with nanmean()
 % 2017-06-15 lrk
@@ -74,6 +80,7 @@ addRequired(p, 'sample2', @isnumeric);
 addRequired(p, 'permutations', @isnumeric);
 
 addParamValue(p, 'sidedness', 'both', @(x) any(validatestring(x,{'both', 'smaller', 'larger'})));
+addParamValue(p, 'exact' , 0, @isnumeric);
 addParamValue(p, 'plotresult', 0, @isnumeric);
 addParamValue(p, 'showprogress', 0, @isnumeric);
 
@@ -83,6 +90,7 @@ sample1 = p.Results.sample1;
 sample2 = p.Results.sample2;
 permutations = p.Results.permutations;
 sidedness = p.Results.sidedness;
+exact = p.Results.exact;
 plotresult = p.Results.plotresult;
 showprogress = p.Results.showprogress;
 
@@ -90,24 +98,44 @@ showprogress = p.Results.showprogress;
 if iscolumn(sample1), sample1 = sample1'; end
 if iscolumn(sample2), sample2 = sample2'; end
 
-% running test
 allobservations = [sample1, sample2];
+observeddifference = nanmean(sample1) - nanmean(sample2);
+effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
+
+if ~exact && permutations > nchoosek(numel(allobservations), numel(sample1))
+    warning(['the number of permutations (%d) is higher than the number of possible combinations (%d);\n' ...
+             'consider running an exact test using the ''exact'' argument'], ...
+             permutations, nchoosek(numel(sample1) + numel(sample2), numel(sample1)));
+end
+
+if showprogress, w = waitbar(0, 'Preparing test...', 'Name', 'permutationTest'); end
+
+if exact
+    % getting all possible combinations
+    allcombinations = nchoosek(1:numel(allobservations), numel(sample1));
+    permutations = size(allcombinations, 1);
+end
+
+% running test
 randomdifferences = zeros(1, permutations);
-if showprogress, w = waitbar(0, sprintf('Permutation 0 of %d', permutations), 'Name', 'permutationTest'); end
+if showprogress, waitbar(0, w, sprintf('Permutation 1 of %d', permutations), 'Name', 'permutationTest'); end
 for n = 1:permutations
-    if showprogress, if mod(n,showprogress) == 0, waitbar(n/permutations, w, sprintf('Permutation %d of %d', n, permutations)); end; end
+    if showprogress && mod(n,showprogress) == 0, waitbar(n/permutations, w, sprintf('Permutation %d of %d', n, permutations)); end
     
-    permutation = randperm(length(allobservations));
+    % selecting either next combination, or random permutation
+    if exact, permutation = [allcombinations(n,:), setdiff(1:numel(allobservations), allcombinations(n,:))];
+    else, permutation = randperm(length(allobservations)); end
+    
+    % diving into two samples
     randomSample1 = allobservations(permutation(1:length(sample1)));
     randomSample2 = allobservations(permutation(length(sample1)+1:length(permutation)));
     
+    % saving differences between the two samples
     randomdifferences(n) = nanmean(randomSample1) - nanmean(randomSample2);
 end
 if showprogress, delete(w); end
 
-observeddifference = nanmean(sample1) - nanmean(sample2);
-effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
-
+% getting probability of finding observed difference from random permutations
 if strcmp(sidedness, 'both')
     p = (length(find(abs(randomdifferences) > abs(observeddifference)))+1) / (permutations+1);
 elseif strcmp(sidedness, 'smaller')
