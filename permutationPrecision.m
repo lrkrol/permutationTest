@@ -19,6 +19,8 @@
 % Out:
 %       numPermutations - estimated minimum number of required permutations
 
+% 2019-02-01 First version
+
 % No rights reserved.
 
 
