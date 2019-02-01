@@ -44,6 +44,7 @@
 
 % 2019-02-01 lrk
 %   - Added short description
+%   - Increased the number of bins in the plot
 % 2018-03-15 lrk
 %   - Suppressed initial MATLAB:nchoosek:LargeCoefficient warning
 % 2018-03-14 lrk
@@ -156,7 +157,7 @@ end
 % plotting result
 if plotresult
     figure;
-    hist(randomdifferences);
+    hist(randomdifferences, 20);
     hold on;
     xlabel('Random differences');
     ylabel('Count')
