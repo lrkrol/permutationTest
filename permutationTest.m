@@ -1,8 +1,11 @@
 % [p, observeddifference, effectsize] = permutationTest(sample1, sample2, permutations [, varargin])
 %
+%       Permutation test (aka randomisation test), testing for a difference
+%       in means between two samples. 
+%
 % In:
-%       sample1 - vector of measurements representing one condition
-%       sample2 - vector of measurements representing a second condition
+%       sample1 - vector of measurements representing one sample
+%       sample2 - vector of measurements representing a second sample
 %       permutations - the number of permutations
 %
 % Optional (name-value pairs):
@@ -39,6 +42,8 @@
 %                    Team PhyPA, Biological Psychology and Neuroergonomics,
 %                    Berlin Institute of Technology
 
+% 2019-02-01 lrk
+%   - Added short description
 % 2018-03-15 lrk
 %   - Suppressed initial MATLAB:nchoosek:LargeCoefficient warning
 % 2018-03-14 lrk
@@ -130,7 +135,7 @@ for n = 1:permutations
     if exact, permutation = [allcombinations(n,:), setdiff(1:numel(allobservations), allcombinations(n,:))];
     else, permutation = randperm(length(allobservations)); end
     
-    % diving into two samples
+    % dividing into two samples
     randomSample1 = allobservations(permutation(1:length(sample1)));
     randomSample2 = allobservations(permutation(length(sample1)+1:length(permutation)));
     
