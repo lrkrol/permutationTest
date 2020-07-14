@@ -42,6 +42,8 @@
 %                    Team PhyPA, Biological Psychology and Neuroergonomics,
 %                    Berlin Institute of Technology
 
+% 2020-07-14 lrk
+%   - Added version-dependent call to hist/histogram
 % 2019-02-01 lrk
 %   - Added short description
 %   - Increased the number of bins in the plot
@@ -157,7 +159,13 @@ end
 % plotting result
 if plotresult
     figure;
-    hist(randomdifferences, 20);
+    if verLessThan('matlab', '8.4')
+        % MATLAB R2014a and earlier
+        hist(randomdifferences, 20);
+    else
+        % MATLAB R2014b and later
+        histogram(randomdifferences, 20);
+    end
     hold on;
     xlabel('Random differences');
     ylabel('Count')
