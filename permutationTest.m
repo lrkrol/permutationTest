@@ -4,8 +4,8 @@
 %       in means between two samples. 
 %
 % In:
-%       sample1 - vector of measurements representing one sample
-%       sample2 - vector of measurements representing a second sample
+%       sample1 - vector of measurements from one (experimental) sample
+%       sample2 - vector of measurements from a second (control) sample
 %       permutations - the number of permutations
 %
 % Optional (name-value pairs):
@@ -32,16 +32,20 @@
 %       p - the resulting p-value
 %       observeddifference - the observed difference between the two
 %                            samples, i.e. mean(sample1) - mean(sample2)
-%       effectsize - the effect size
+%       effectsize - the effect size, Hedges' g
 %
 % Usage example:
 %       >> permutationTest(rand(1,100), rand(1,100)-.25, 10000, ...
 %          'plotresult', 1, 'showprogress', 250)
 % 
-%                    Copyright 2015-2018 Laurens R Krol
+%                    Copyright 2015-2018, 2021 Laurens R Krol
 %                    Team PhyPA, Biological Psychology and Neuroergonomics,
 %                    Berlin Institute of Technology
 
+% 2021-01-13 lrk
+%   - Replaced effect size calculation with Hedges' g, from Hedges & Olkin
+%     (1985), Statistical Methods for Meta-Analysis (p. 78, formula 3),
+%     Orlando, FL, USA: Academic Press.
 % 2020-07-14 lrk
 %   - Added version-dependent call to hist/histogram
 % 2019-02-01 lrk
@@ -110,7 +114,8 @@ if iscolumn(sample2), sample2 = sample2'; end
 
 allobservations = [sample1, sample2];
 observeddifference = nanmean(sample1) - nanmean(sample2);
-effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
+pooledstd = sqrt(  ( (numel(sample1)-1)*std(sample1)^2 + (numel(sample2)-1)*std(sample2)^2 )  /  ( numel(allobservations)-2 )  );
+effectsize = observeddifference / pooledstd;
 
 w = warning('off', 'MATLAB:nchoosek:LargeCoefficient');
 if ~exact && permutations > nchoosek(numel(allobservations), numel(sample1))
