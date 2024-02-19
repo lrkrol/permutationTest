@@ -42,6 +42,10 @@
 %                    Team PhyPA, Biological Psychology and Neuroergonomics,
 %                    Berlin Institute of Technology
 
+% 2024-02-19 lrk
+%   - switched to non-strict inequalities when calculating p, e.g. random
+%     >= observed rather than random > observed, to calculate p, such that
+%     p can never be 0.
 % 2021-01-13 lrk
 %   - Replaced effect size calculation with Hedges' g, from Hedges & Olkin
 %     (1985), Statistical Methods for Meta-Analysis (p. 78, formula 3),
@@ -154,12 +158,13 @@ if showprogress, delete(w); end
 
 % getting probability of finding observed difference from random permutations
 if strcmp(sidedness, 'both')
-    p = (length(find(abs(randomdifferences) > abs(observeddifference)))+1) / (permutations+1);
+    p = (length(find(abs(randomdifferences) >= abs(observeddifference)))+1) / (permutations+1);
 elseif strcmp(sidedness, 'smaller')
-    p = (length(find(randomdifferences < observeddifference))+1) / (permutations+1);
+    p = (length(find(randomdifferences <= observeddifference))+1) / (permutations+1);
 elseif strcmp(sidedness, 'larger')
-    p = (length(find(randomdifferences > observeddifference))+1) / (permutations+1);
+    p = (length(find(randomdifferences >= observeddifference))+1) / (permutations+1);
 end
+
 
 % plotting result
 if plotresult
